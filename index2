@@ -1,0 +1,77 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <title>Unsafe Video Demo</title>
+  <style>
+    body { font-family: system-ui, Arial; background:#f3f5f7; padding:20px; }
+    .wrap { max-width:900px; margin:0 auto; position:relative; }
+    video { width:100%; height:auto; display:block; background:#000; }
+    /* Unsafe visual treatment */
+    .unsafe video {
+      filter: blur(8px) grayscale(.25);
+      transform: scale(1.02);
+      pointer-events: none; /* prevents click through to controls */
+    }
+    .overlay {
+      position:absolute;
+      inset:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      pointer-events:none;
+    }
+    .panel {
+      pointer-events:auto;
+      background: rgba(0,0,0,0.76);
+      color:#fff;
+      padding:12px 16px;
+      border-radius:10px;
+      font-weight:600;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.25);
+    }
+    .hint { margin-top:12px; color:#333; font-size:13px; }
+    pre { background:#fff; padding:4px 6px; border-radius:6px; border:1px solid #e0e0e0; display:inline-block; }
+  </style>
+</head>
+<body>
+  <h2>Unsafe Video Demo</h2>
+  <p class="hint">This page renders the video with an “unsafe” visual overlay. Use DevTools to remove the overlay or call <code>makeSafe()</code> from the Console.</p>
+
+  <div class="wrap unsafe" id="container">
+    <!-- Replace the src value below with your video URL -->
+    <video id="demoVideo" src="vid1.mp4" playsinline preload="metadata" muted></video>
+
+    <div class="overlay" id="overlay">
+      <div class="panel">
+        ⚠️ Marked as <strong>UNSAFE</strong><br/>
+        (open DevTools → Console and run <pre>makeSafe()</pre>)
+      </div>
+    </div>
+  </div>
+
+  <p class="hint">Quick DevTools commands:</p>
+  <pre>document.getElementById('container').classList.remove('unsafe');
+document.getElementById('overlay')?.remove();
+const v = document.getElementById('demoVideo'); v.controls = true; v.muted=false; v.play();</pre>
+
+  <script>
+    // Helper: make it safe programmatically (call from Console)
+    function makeSafe() {
+      const c = document.getElementById('container');
+      const o = document.getElementById('overlay');
+      const v = document.getElementById('demoVideo');
+      c.classList.remove('unsafe');
+      if (o) o.remove();
+      v.controls = true;
+      try { v.muted = false; } catch(e){}
+      v.play().catch(()=>{/* may require user gesture for autoplay with sound */});
+      console.log('Video made safe (overlay removed, controls enabled).');
+    }
+
+    // small UX: try to load poster then pause so user can click play manually
+    const v = document.getElementById('demoVideo');
+    v.pause();
+  </script>
+</body>
+</html>
